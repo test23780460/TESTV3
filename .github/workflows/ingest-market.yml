@@ -35,6 +35,6 @@ jobs:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
-          MARKET_DATA_PROVIDER: ${{ vars.MARKET_DATA_PROVIDER || 'alpha_vantage' }}
+          MARKET_DATA_PROVIDER: ${{ vars.MARKET_DATA_PROVIDER || 'finnhub' }}
           NEWS_DATA_PROVIDER: ${{ vars.NEWS_DATA_PROVIDER || 'finnhub' }}
           SYMBOLS: ${{ inputs.symbols }}
