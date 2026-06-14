@@ -1,0 +1,40 @@
+name: Scheduled Market Ingestion
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: "Comma-separated symbols to ingest"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: market-ingestion
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run ingest
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+          MARKET_DATA_PROVIDER: ${{ vars.MARKET_DATA_PROVIDER || 'alpha_vantage' }}
+          NEWS_DATA_PROVIDER: ${{ vars.NEWS_DATA_PROVIDER || 'finnhub' }}
+          SYMBOLS: ${{ inputs.symbols }}
