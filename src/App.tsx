@@ -768,8 +768,8 @@ function predictionModel(asset: Asset, prediction: ReturnType<typeof buildPredic
 function buildNewsRows(bundle: MarketBundle): NewsImpactRow[] {
   return bundle.news.map((news) => {
     const asset = inferNewsAsset(news, bundle.assets);
-    const sentimentScore = news.sentiment === "Positive" ? 74 : news.sentiment === "Negative" ? 34 : 52;
-    const relevanceScore = clampNumber(Math.round((news.relevanceScore || 0.5) * 100), 1, 100);
+    const sentimentScore = clampNumber(Math.round(news.sentimentScore || (news.sentiment === "Positive" ? 74 : news.sentiment === "Negative" ? 34 : 52)), 1, 100);
+    const relevanceScore = news.impact === "High" ? 86 : news.impact === "Moderate" ? 64 : 42;
     const prediction = asset ? buildPrediction(asset) : undefined;
     const moveBoost = asset ? Math.min(18, Math.abs(asset.changePct) * 2.8) : 0;
     const predictionBoost = prediction ? prediction.confidence * 0.08 : 0;
