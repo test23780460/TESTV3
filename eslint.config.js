@@ -13,6 +13,11 @@ export default [
       globals: { window: "readonly", document: "readonly", localStorage: "readonly", fetch: "readonly", console: "readonly", process: "readonly", location: "readonly", React: "readonly" }
     },
     plugins: { "@typescript-eslint": tseslint, "react-hooks": reactHooks },
-    rules: { ...tseslint.configs.recommended.rules, ...reactHooks.configs.recommended.rules, "@typescript-eslint/no-explicit-any": "off" }
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      ...reactHooks.configs.recommended.rules,
+      "no-undef": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
   }
 ];
