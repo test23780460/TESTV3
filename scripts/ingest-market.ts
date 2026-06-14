@@ -76,7 +76,7 @@ async function main() {
     }
 
     const newsProvider = createNewsProvider(env);
-    const news = await newsProvider.getNews(successful.slice(0, 8));
+    const news = await newsProvider.getNews(successful.slice(0, 24));
     for (const item of news) {
       await supabase.from("news_articles").upsert({
         provider_article_id: item.providerArticleId,
@@ -87,6 +87,7 @@ async function main() {
         image_url: item.imageUrl,
         published_at: item.publishedAt,
         overall_sentiment: item.overallSentiment,
+        sentiment_score: item.overallSentiment === "Positive" ? 0.72 : item.overallSentiment === "Negative" ? -0.72 : 0,
         relevance_score: item.relevanceScore
       }, { onConflict: "provider_article_id" });
     }

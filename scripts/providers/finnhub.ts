@@ -7,6 +7,15 @@ function wait(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
+function classifyNews(text: string): ProviderNews["overallSentiment"] {
+  const lower = text.toLowerCase();
+  const positive = /\b(beat|beats|raise|raises|raised|upgrade|upgraded|surge|surges|growth|record|strong|bullish|buy|outperform|profit|profits|rebound|wins|partnership)\b/.test(lower);
+  const negative = /\b(miss|misses|cut|cuts|downgrade|downgraded|fall|falls|drop|drops|lawsuit|probe|warning|weak|bearish|sell|underperform|loss|risk|layoff|slump)\b/.test(lower);
+  if (positive && !negative) return "Positive";
+  if (negative && !positive) return "Negative";
+  return "Neutral";
+}
+
 async function fetchJson(path: string, token: string, params: Record<string, string> = {}) {
   const url = new URL(`${BASE_URL}${path}`);
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
@@ -89,18 +98,21 @@ export function finnhubProvider(token: string): MarketDataProvider {
         from: weekAgo.toISOString().slice(0, 10),
         to: today.toISOString().slice(0, 10)
       })));
-      return settled.flatMap((result, index) => result.status === "fulfilled" ? result.value.slice(0, 5).map((item: any) => ({
-        providerArticleId: String(item.id ?? item.url),
-        title: item.headline,
-        summary: item.summary,
-        source: item.source,
-        articleUrl: item.url,
-        imageUrl: item.image,
-        publishedAt: item.datetime ? new Date(item.datetime * 1000).toISOString() : new Date().toISOString(),
-        overallSentiment: "Neutral",
-        relevanceScore: 0.5,
-        relatedSymbols: [symbols[index]]
-      })) : []);
+      return settled.flatMap((result, index) => result.status === "fulfilled" ? result.value.slice(0, 5).map((item: any) => {
+        const text = `${item.headline ?? ""} ${item.summary ?? ""}`;
+        return {
+          providerArticleId: String(item.id ?? item.url),
+          title: item.headline,
+          summary: item.summary,
+          source: item.source,
+          articleUrl: item.url,
+          imageUrl: item.image,
+          publishedAt: item.datetime ? new Date(item.datetime * 1000).toISOString() : new Date().toISOString(),
+          overallSentiment: classifyNews(text),
+          relevanceScore: 0.62,
+          relatedSymbols: [symbols[index]]
+        };
+      }) : []);
     }
   };
 }
