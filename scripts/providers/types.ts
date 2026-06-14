@@ -57,7 +57,7 @@ export interface ProviderNews {
 
 export interface MarketDataProvider {
   name: string;
-  searchAssets(query: string): Promise<ProviderAsset[]>;
+  searchAssets?(query: string): Promise<ProviderAsset[]>;
   getQuote(symbol: string): Promise<ProviderQuote>;
   getHistoricalBars(symbol: string, interval: "1d" | "5m", startDate: string, endDate: string): Promise<HistoricalBar[]>;
   getBatchQuotes(symbols: string[]): Promise<ProviderQuote[]>;
