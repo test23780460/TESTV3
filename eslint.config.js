@@ -9,7 +9,6 @@ export default [
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
-      parserOptions: { project: "./tsconfig.json" },
       globals: { window: "readonly", document: "readonly", localStorage: "readonly", fetch: "readonly", console: "readonly", process: "readonly", location: "readonly", React: "readonly" }
     },
     plugins: { "@typescript-eslint": tseslint, "react-hooks": reactHooks },
