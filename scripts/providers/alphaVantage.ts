@@ -14,10 +14,12 @@ export function alphaVantageProvider(apiKey: string): MarketDataProvider {
       return { symbol, price: Number(quote["05. price"]), open: Number(quote["02. open"]), high: Number(quote["03. high"]), low: Number(quote["04. low"]), previousClose: Number(quote["08. previous close"]), change: Number(quote["09. change"]), changePercent: Number(String(quote["10. change percent"]).replace("%", "")), volume: Number(quote["06. volume"]) || null, timestamp: new Date().toISOString(), provider: "alpha_vantage", dataStatus: "Delayed", raw: quote };
     },
     async getHistoricalBars(symbol: string, interval: "1d" | "5m"): Promise<HistoricalBar[]> {
-      const params = interval === "1d" ? { function: "TIME_SERIES_DAILY_ADJUSTED", outputsize: "full", symbol, apikey: apiKey } : { function: "TIME_SERIES_INTRADAY", interval: "5min", outputsize: "compact", symbol, apikey: apiKey };
+      const params: Record<string, string> = interval === "1d"
+        ? { function: "TIME_SERIES_DAILY_ADJUSTED", outputsize: "full", symbol, apikey: apiKey }
+        : { function: "TIME_SERIES_INTRADAY", interval: "5min", outputsize: "compact", symbol, apikey: apiKey };
       const json = await fetchJson(endpoint(params));
       const key = interval === "1d" ? "Time Series (Daily)" : "Time Series (5min)";
-      return Object.entries(json[key] ?? {}).map(([timestamp, row]: [string, any]) => ({ symbol, interval, timestamp: new Date(timestamp).toISOString(), open: Number(row["1. open"]), high: Number(row["2. high"]), low: Number(row["3. low"]), close: Number(row["4. close"]), adjustedClose: Number(row["5. adjusted close"] ?? row["4. close"]), volume: Number(row["6. volume"] ?? row["5. volume"]) || null, provider: "alpha_vantage", dataQuality: "normal" })).filter((bar) => bar.close > 0 && bar.high >= bar.low);
+      return Object.entries(json[key] ?? {}).map(([timestamp, row]: [string, any]): HistoricalBar => ({ symbol, interval, timestamp: new Date(timestamp).toISOString(), open: Number(row["1. open"]), high: Number(row["2. high"]), low: Number(row["3. low"]), close: Number(row["4. close"]), adjustedClose: Number(row["5. adjusted close"] ?? row["4. close"]), volume: Number(row["6. volume"] ?? row["5. volume"]) || null, provider: "alpha_vantage", dataQuality: "normal" })).filter((bar) => bar.close > 0 && bar.high >= bar.low);
     },
     async getBatchQuotes(symbols: string[]) { const settled = await Promise.allSettled(symbols.map((symbol) => this.getQuote(symbol))); return settled.flatMap((result) => result.status === "fulfilled" ? [result.value] : []); },
     async getNews(symbols: string[]): Promise<ProviderNews[]> {
